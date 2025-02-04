@@ -28,7 +28,7 @@ export default function DashBoardNavbar() {
               whileHover={{ scale: 1.05 }}
               className="flex-shrink-0 flex items-center"
             >
-              <span className={`text-xl font-bold ${darkMode ? 'text-text-primary-dark' : 'text-primary'}`}>
+              <span className={`text-xl font-bold ${darkMode ? 'text-text-primary-dark' : 'text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent hover:opacity-90 transition-opacity'}`}>
                 PeerPay
               </span>
             </motion.div>
