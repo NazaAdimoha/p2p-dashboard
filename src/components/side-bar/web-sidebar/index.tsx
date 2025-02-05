@@ -12,7 +12,7 @@ export default function Sidebar() {
 
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: '🏠' },
-    { name: 'Transactions', path: '/transactions', icon: '💸' },
+    { name: 'Transactions', path: '/dashboard/transactions', icon: '💸' },
     { name: 'Analytics', path: '/analytics', icon: '📊' },
     { name: 'Settings', path: '/settings', icon: '⚙️' },
   ]

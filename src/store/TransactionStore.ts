@@ -5,9 +5,14 @@ import { create } from "zustand";
 export const useTransactionStore = create<TransactionStore>((set) => ({
   transactions: [],
   fetchTransactions: async () => {
-    const response = await fetch("/api/transactions");
-    const data = await response.json();
-    set({ transactions: data });
+    try {
+      const response = await fetch('http://localhost:3001/transactions')
+      if (!response.ok) throw new Error('Failed to fetch')
+      const data = await response.json()
+      set({ transactions: data })
+    } catch (error) {
+      console.error('Error fetching transactions:', error)
+    }
   },
   createTransaction: (transaction) => {
     const newTransaction = {

@@ -14,7 +14,7 @@ export default function DashBoardNavbar() {
 
   const navLinks = [
     { name: 'Dashboard', path: '/dashboard' },
-    { name: 'Transactions', path: '/transactions' },
+    { name: 'Transactions', path: '/dashboard/transactions' },
     { name: 'New Transaction', path: '/new' },
   ]
 
