@@ -1,10 +1,10 @@
 export type Transaction = {
-    id: string
-    senderName: string
-    receiverName: string
-    amount: number
-    status: 'Pending' | 'Completed' | 'Failed'
-    timestamp: string
+    id?: string
+    senderName?: string
+    receiverName?: string
+    amount?: number
+    status?: 'Pending' | 'Completed' | 'Failed'
+    timestamp?: string
   }
 
  export type TransactionStore = {

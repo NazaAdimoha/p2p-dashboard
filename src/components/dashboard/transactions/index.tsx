@@ -58,6 +58,7 @@ if (!user) return null
       <DataTable
         columns={columns}
         data={transactions}
+      
       />
     </div>
   )
