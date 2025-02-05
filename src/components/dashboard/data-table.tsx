@@ -1,123 +1,136 @@
-'use client'
+'use client';
+
+import * as React from 'react';
+
 import {
   ColumnDef,
   flexRender,
-  getCoreRowModel,
-  getSortedRowModel,
-  getPaginationRowModel,
-  getFilteredRowModel,
   SortingState,
-  useReactTable,
+  getSortedRowModel,
   ColumnFiltersState,
-} from '@tanstack/react-table'
-import { useState } from 'react'
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
-import { Input } from '@/shared/input'
-import { Button } from '@/shared/button'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './table/table'
+  VisibilityState,
+  getFilteredRowModel,
+  getCoreRowModel,
+  getPaginationRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
+
+import { ListFilter } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './table/table';
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@/shared/dropdown-menu';
+import { Button } from '@/shared/button';
+import { Input } from '@/shared/input';
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [globalFilter, setGlobalFilter] = useState('')
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    [],
+  );
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
     data,
     columns,
+    getPaginationRowModel: getPaginationRowModel(),
+    getCoreRowModel: getCoreRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
     state: {
       sorting,
       columnFilters,
-      globalFilter,
+      columnVisibility,
+      rowSelection,
     },
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    onGlobalFilterChange: setGlobalFilter,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-  })
+  });
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="w-full">
+      <div className="flex items-center py-4 px-1 justify-end gap-2">
         <Input
-          placeholder="Search all columns..."
-          value={globalFilter}
-          onChange={(e) => setGlobalFilter(e.target.value)}
+          placeholder="Search"
+          value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
+          onChange={event =>
+            table.getColumn('name')?.setFilterValue(event.target.value)
+          }
           className="max-w-sm"
         />
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="outline"
-            onClick={() => table.setPageIndex(0)}
-            disabled={!table.getCanPreviousPage()}
-          >
-            <ChevronsLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <span className="text-sm">
-            Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-          </span>
-          <Button
-            variant="outline"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-            disabled={!table.getCanNextPage()}
-          >
-            <ChevronsRight className="h-4 w-4" />
-          </Button>
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Button
+              variant="ghost"
+              className="ml-auto"
+              iconPlacement="left"
+              Icon={<ListFilter height={20} width={20} className="size-5" />}
+            >
+              Filters
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {table
+              .getAllColumns()
+              .filter(column => column.getCanHide())
+              .map(column => {
+                return (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    className="capitalize"
+                    checked={column.getIsVisible()}
+                    onCheckedChange={value => column.toggleVisibility(!!value)}
+                  >
+                    {column.id}
+                  </DropdownMenuCheckboxItem>
+                );
+              })}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
-      <div className="rounded-md border">
+      <div className="rounded-md border w-full">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
+            {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="px-4">
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
-                  </TableHead>
-                ))}
+                {headerGroup.headers.map(header => {
+                  return (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                    </TableHead>
+                  );
+                })}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+              table.getRowModel().rows.map(row => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+                  data-state={row.getIsSelected() && 'selected'}
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="px-4">
+                  {row.getVisibleCells().map(cell => (
+                    <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
@@ -136,24 +149,28 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <p className="text-sm">Show</p>
-          <select
-            value={table.getState().pagination.pageSize}
-            onChange={(e) => table.setPageSize(Number(e.target.value))}
-            className="border rounded-md px-2 py-1 text-sm"
-          >
-            {[10, 20, 30, 40, 50].map((pageSize) => (
-              <option key={pageSize} value={pageSize}>
-                {pageSize}
-              </option>
-            ))}
-          </select>
-          <p className="text-sm">entries</p>
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <div className="flex-1 text-sm text-muted-foreground">
+          {table.getFilteredSelectedRowModel().rows.length} of{' '}
+          {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
+          Previous
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
+          Next
+        </Button>
       </div>
     </div>
-  )
+  );
 }
