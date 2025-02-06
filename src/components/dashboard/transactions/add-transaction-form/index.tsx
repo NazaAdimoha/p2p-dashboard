@@ -1,86 +1,75 @@
-
-
-// import { useIndustryStore } from '@/store/useIndustry';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Dispatch, SetStateAction, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { object, string, z } from 'zod';
+import { z } from 'zod';
 import { Button } from '@/shared/button';
-import { Textarea } from '@/shared/text-area';
 import FieldInput from '@/shared/field-input';
+import { useTransactionStore } from '@/store/TransactionStore';
 
-interface Props {
-  setOpen: Dispatch<SetStateAction<boolean>>;
-//   defaultValues?: Partial<IndustryType>;
-}
-
-const Schema = object({
-  amount: string().min(3, 'Name is required'),
-  senderName: string().min(3, 'Description is required'),
+const transactionSchema = z.object({
+  senderName: z.string().min(3, 'Sender name is required'),
+  receiverName: z.string().min(3, 'Receiver name is required'),
+  amount: z.number().min(1, 'Amount must be at least 1'),
+  status: z.enum(['Pending', 'Completed', 'Failed'])
 });
 
-type AddTransactionFormData = z.infer<typeof Schema>;
+type TransactionFormData = z.infer<typeof transactionSchema>;
 
-export default function AddTransaction({ setOpen }: Props) {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<AddTransactionFormData>({
-    resolver: zodResolver(Schema),
+export default function AddTransaction({ setOpen }: { setOpen: (open: boolean) => void }) {
+  const { createTransaction } = useTransactionStore();
+  const { register, handleSubmit, formState: { errors } } = useForm<TransactionFormData>({
+    resolver: zodResolver(transactionSchema)
   });
 
-//   const { createIndustry, updateIndustry, loading, created } =
-//     useIndustryStore();
-
-  const onSubmit = (data: AddTransactionFormData) => {
-    // if (defaultValues) {
-    //   const payload = {
-    //     ...data,
-    //     id: String(defaultValues?.id),
-    //   };
-    //   updateIndustry(payload);
-    // } else {
-    //   createIndustry(data);
-    // }
-
-    console.log(data)
+  const onSubmit = (data: TransactionFormData) => {
+    createTransaction(data);
+    setOpen(false);
   };
-
-//   useEffect(() => {
-//     if (created) {
-//       setOpen(false);
-//     }
-//   }, [created, setOpen]);
 
   return (
     <div className="px-10 w-full">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="flex flex-col gap-8">
-          <h3 className="text-text-gray font-bold text-[32px]">
-            Add Transaction
-          </h3>
+        <div className="flex flex-col gap-4">
+          <h3 className="text-2xl font-bold">Add Transaction</h3>
+          
           <FieldInput
-            label="Name this Industry Type"
-            placeholder="Industry Type"
-            {...register('amount')}
-            errors={errors}
-          />
-          <Textarea
-            placeholder="Brief description of the industry..."
+            label="Sender Name"
+            placeholder="Sender Name"
             {...register('senderName')}
             errors={errors}
           />
 
-          <hr className="mt-2 h-[1px]" />
+          <FieldInput
+            label="Receiver Name"
+            placeholder="Receiver Name"
+            {...register('receiverName')}
+            errors={errors}
+          />
 
-          <div className="flex justify-end gap-3 -mt-4">
+          <FieldInput
+            label="Amount"
+            type="number"
+            placeholder="Amount"
+            {...register('amount', { valueAsNumber: true })}
+            errors={errors}
+          />
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium">Status</label>
+            <select
+              {...register('status')}
+              className="w-full p-2 border rounded-md"
+            >
+              <option value="Pending">Pending</option>
+              <option value="Completed">Completed</option>
+              <option value="Failed">Failed</option>
+            </select>
+          </div>
+
+          <div className="flex justify-end gap-3 mt-4">
             <Button variant="ghost" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button variant="ghost" type="submit" >
-              Save
-            </Button>
+            <Button variant="ghost" type="submit">Create Transaction</Button>
           </div>
         </div>
       </form>

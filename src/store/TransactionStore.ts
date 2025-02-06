@@ -31,9 +31,16 @@ export const useTransactionStore = create<TransactionStore>((set, get) => ({
   createTransaction: (transaction) => {
     const newTransaction = {
       ...transaction,
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).slice(2, 9),
       timestamp: new Date().toISOString()
     };
     set((state) => ({ transactions: [newTransaction, ...state.transactions] }));
+    
+    // Sync with JSON Server
+    fetch('http://localhost:3001/transactions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newTransaction)
+    });
   },
 }));
