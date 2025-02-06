@@ -1,24 +1,31 @@
 import { Transaction, TransactionStore } from "@/types";
 import { create } from "zustand";
 
-export const useTransactionStore = create<TransactionStore>((set) => ({
+export const useTransactionStore = create<TransactionStore>((set, get) => ({
   transactions: [],
   fetchTransactions: async () => {
     try {
-      const response = await fetch('http://localhost:3001/transactions', {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-      
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
-      
-      const data = await response.json()
-      console.log("data:::", data)
-      set({ transactions: data })
+      const response = await fetch('http://localhost:3001/transactions');
+      const data = await response.json();
+      set({ transactions: data });
     } catch (error) {
-      console.error('Error fetching transactions:', error)
-      throw error 
+      console.error('Error fetching transactions:', error);
+    }
+  },
+  fetchTransaction: async (id: string) => {
+    try {
+      const response = await fetch(`http://localhost:3001/transactions/${id}`);
+      if (!response.ok) throw new Error('Transaction not found');
+      const data = await response.json();
+      
+      if (!get().transactions.some(t => t.id === id)) {
+        set((state) => ({ transactions: [data, ...state.transactions] }));
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Error fetching transaction:', error);
+      throw error;
     }
   },
   createTransaction: (transaction) => {

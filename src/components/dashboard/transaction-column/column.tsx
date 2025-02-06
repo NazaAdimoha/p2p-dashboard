@@ -1,7 +1,6 @@
 import { ColumnDef } from '@tanstack/react-table'
 import { Transaction } from '@/types'
-import { ArrowUpDown, Eye, MoreVerticalIcon } from 'lucide-react'
-import { Button } from '@/shared/button'
+import { Eye, MoreVerticalIcon } from 'lucide-react'
 import { StatusBadge } from '@/shared/statusBadge'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/shared/dropdown-menu'
 import Link from 'next/link'
@@ -41,13 +40,7 @@ export const columns: ColumnDef<Transaction>[] = [
   {
     accessorKey: 'status',
     header: 'Status',
-    cell: ({ row }) => {
-      <StatusBadge status={row?.original?.status} />
-
-    (row: any, id: string, value: any[]) => {
-      return value.includes(row.getValue(id))
-    }
-    }
+    cell: ({ row }) => <StatusBadge status={row.getValue('status')} />
   },
   {
     accessorKey: 'timestamp',
@@ -59,12 +52,6 @@ export const columns: ColumnDef<Transaction>[] = [
     header: 'Actions',
     cell: ({ row }) => {
       const p2p = row.original;
-
-      const values = {
-        id: p2p?.id,
-        description: p2p?.senderName,
-        name: p2p?.receiverName,
-      };
 
       return (
         <DropdownMenu>
@@ -80,7 +67,7 @@ export const columns: ColumnDef<Transaction>[] = [
                 className="flex gap-3 items-center"
                 href={{
                   pathname: `/dashboard/transactions/${p2p?.id}`,
-                  query: { id: p2p.id },
+                  // query: { id: p2p.id },
                 }}
               >
                 <Eye className="size-5" />

@@ -4,28 +4,56 @@ import { useParams, useRouter } from 'next/navigation';
 import { useClerk } from '@clerk/nextjs';
 import { useTransactionStore } from '@/store/TransactionStore';
 import { StatusBadge } from '@/shared/statusBadge';
+import { Transaction } from '@/types';
 
 export default function TransactionDetails() {
   const params = useParams();
   const router = useRouter();
   const { user, loaded } = useClerk();
   const [isLoading, setIsLoading] = useState(true);
-  const { transactions } = useTransactionStore();
-  const [transaction, setTransaction] = useState<any>(null);
+  const { transactions, fetchTransaction } = useTransactionStore();
+  const [transaction, setTransaction] = useState<Transaction | null>(null);
 
   useEffect(() => {
     if (loaded && !user) {
       router.push('/dashboard');
     }
-  }, [loaded, user, router]);
+  }, [loaded, user]);
 
   useEffect(() => {
-    if (params.id && transactions.length > 0) {
-      const found = transactions.find(t => t.id === params.id);
-      setTransaction(found);
-      setIsLoading(false);
+    const loadTransactionData = async () => {
+      try {
+        const transactionId = Array.isArray(params.id) ? params.id[0] : params.id;
+
+        if (!transactionId) {
+          throw new Error('Invalid transaction ID');
+        }
+        
+      
+        const existingTransaction = transactions.find(t => t.id === transactionId);
+        
+        if (existingTransaction) {
+          setTransaction(existingTransaction);
+          return;
+        }
+
+        // Fetch from API if not in store
+          const data = await fetchTransaction(transactionId);
+          console.log("dataId:::", data)
+          setTransaction(data);
+        
+      } catch (error) {
+        console.error('Error loading transaction:', error);
+        router.push('/dashboard/transactions');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (params.id) {
+      loadTransactionData();
     }
-  }, [params.id, transactions]);
+  }, [params.id, transactions, fetchTransaction]);
 
   if (!loaded || isLoading) {
     return (
@@ -46,7 +74,7 @@ export default function TransactionDetails() {
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-8">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Transaction Details</h1>
+        <h1 className="text-2xl font-bold text-black">Transaction Details</h1>
         <StatusBadge status={transaction.status} />
       </div>
 
@@ -77,7 +105,7 @@ export default function TransactionDetails() {
 
 interface DetailItem {
   label: string;
-  value: string | number;
+  value: string | number | undefined;
 }
 
 interface DetailCardProps {

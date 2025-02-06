@@ -9,11 +9,11 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-brand-primary',
-        ghost: 'border border-brand-gray bg-white text-text-gray',
-        primary: 'bg-brand-primary text-white text-base',
-        tertiary: 'bg-brand-lightBlue text-text-primary text-base',
-        secondary: 'bg-brand-secondary text-white',
+        default: 'bg-primary',
+        ghost: 'border border-gray bg-white text-text-gray',
+        primary: 'bg-primary text-white text-base',
+        tertiary: 'bg-secondary text-text-primary text-base',
+        secondary: 'bg-secondary text-white',
         dangerOutline: 'border border-brand-danger bg-white text-text-red',
         success: 'bg-green-500 text-white text-base',
       },
@@ -81,7 +81,7 @@ const Button = React.forwardRef<
         ) : (
           <>
             {Icon && iconPlacement === 'left' && (
-              <div className="translate-x-[0%] pr-2 transition-all duration-200 group-hover:w-5 group-hover:translate-x-100 group-hover:pr-2 group-hover:opacity-100">
+              <div className="translate-x-[0%] pr-2 space-x-2 transition-all duration-200 group-hover:w-5 group-hover:translate-x-100 group-hover:pr-2 group-hover:opacity-100">
                 {Icon}
               </div>
             )}

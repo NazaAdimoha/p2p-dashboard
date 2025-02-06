@@ -1,52 +1,42 @@
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import _ from 'lodash';
 
 interface StatusBadgeProps {
-  status: string | undefined;
-  label?: string;
+  status: 'Pending' | 'Completed' | 'Failed' | undefined;
   className?: string;
-  effect?: () => void; // Add the effect prop
 }
 
-export const StatusBadge = ({
-  status,
-  label,
-  className,
-  effect,
-}: StatusBadgeProps) => {
+export const StatusBadge = ({ status, className }: StatusBadgeProps) => {
   let bg, textColor;
-  switch (status?.toLowerCase()) {
-    case 'active':
-      bg = 'dark:bg-green-900 bg-green-100';
-      textColor = 'dark:text-green-300 text-green-800';
+  switch (status) {
+    case 'Completed':
+      bg = 'bg-green-400 dark:bg-green-900';
+      textColor = 'text-green-800 dark:text-green-300';
       break;
-    case 'disabled':
-      bg = 'dark:bg-red-900 bg-red-100';
-      textColor = 'dark:text-red-300 text-red-800';
+    case 'Pending':
+      bg = 'bg-yellow-100 dark:bg-yellow-900';
+      textColor = 'text-yellow-800 dark:text-yellow-300';
+      break;
+    case 'Failed':
+      bg = 'bg-red-100 dark:bg-red-900';
+      textColor = 'text-red-800 dark:text-red-300';
       break;
     default:
-      bg = 'dark:bg-gray-800 bg-gray-100';
-      textColor = 'dark:text-gray-300 text-gray-800';
+      bg = 'bg-gray-100 dark:bg-gray-800';
+      textColor = 'text-gray-800 dark:text-gray-300';
   }
-
-  const clickableClass = effect ? 'cursor-pointer hover:opacity-80' : '';
 
   return (
     <motion.span
       initial={{ scale: 0.8 }}
       animate={{ scale: 1 }}
       className={cn(
-        `px-2 py-[2px] text-xs capitalize rounded-[16px] flex items-center gap-x-1 w-fit font-medium ${bg} ${textColor}`,
-        clickableClass,
-        className,
+        `px-2 py-1 text-xs font-medium rounded-full flex items-center gap-1 w-fit ${bg} ${textColor}`,
+        className
       )}
-      onClick={effect}
     >
-      <span
-        className={cn('w-[5px] h-[5px] rounded-full block', textColor)}
-      />
-      {_.startCase(label) || _.startCase(status)}
+      <span className={cn('w-2 h-2 rounded-full', textColor)} />
+      {status}
     </motion.span>
   );
 };
