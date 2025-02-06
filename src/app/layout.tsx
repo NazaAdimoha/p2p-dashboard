@@ -1,12 +1,10 @@
+"use client";
+import { useEffect } from "react";
 
-import type { Metadata } from "next";
+import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import {
-  ClerkProvider,
-} from "@clerk/nextjs";
-// import { useEffect } from "react";
-// import { useThemeStore } from "@/store/Themestore";
+import { useThemeStore } from "@/store/Themestore";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,31 +16,26 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "My p2p web app",
-  description: "Facilitating peer-to-peer transacions",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // const { darkMode } = useThemeStore()
+  const { darkMode } = useThemeStore();
 
-  // useEffect(() => {
-  //   if (darkMode) {
-  //     document.documentElement.classList.add('dark')
-  //   } else {
-  //     document.documentElement.classList.remove('dark')
-  //   }
-  // }, [darkMode])
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
 
   return (
     <ClerkProvider>
-      <html lang="en">
+      <html lang="en" className={darkMode ? 'dark' : ''}>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-white dark:bg-gray-900 text-gray-200 dark:text-gray-700`}
         >
           {children}
         </body>
